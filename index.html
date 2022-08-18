@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
     <title>Theme template</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -14,12 +14,9 @@
 
 <style>
     .navbar-item.is-mega {
-  position: static;
+    position: static;
 
-  .is-mega-menu-title {
-    margin-bottom: 0;
-    padding: .375rem 1rem;
-  }
+    .is-mega-menu-title { margin-bottom: 0; padding: .375rem 1rem;  }
 }
 
 </style>
@@ -29,13 +26,13 @@
       <img src="http://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28">
     </a>
 
-    <a class="navbar-item is-hidden-desktop" href="https://github.com/jgthms/bulma" target="_blank">
+    <a class="navbar-item is-hidden-desktop" href="https://github.com/jgthms/bulma" target="_blank" aria-label="none">
       <span class="icon" style="color: #333;">
         <i class="fa fa-github"></i>
       </span>
     </a>
 
-    <a class="navbar-item is-hidden-desktop" href="https://twitter.com/jgthms" target="_blank">
+    <a class="navbar-item is-hidden-desktop" href="https://twitter.com/jgthms" target="_blank" aria-label="none">
       <span class="icon" style="color: #55acee;">
         <i class="fa fa-twitter"></i>
       </span>
@@ -254,12 +251,12 @@
     </div>
 
     <div class="navbar-end">
-      <a class="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank">
+      <a class="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank" aria-label="none">
         <span class="icon" style="color: #333;">
           <i class="fa fa-github"></i>
         </span>
       </a>
-      <a class="navbar-item is-hidden-desktop-only" href="https://twitter.com/jgthms" target="_blank">
+      <a class="navbar-item is-hidden-desktop-only" href="https://twitter.com/jgthms" target="_blank" aria-label="none">
         <span class="icon" style="color: #55acee;">
           <i class="fa fa-twitter"></i>
         </span>
@@ -286,6 +283,15 @@
     </div>
   </div>
 </section>
+<footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      <strong>Bulma</strong> by <a href="https://jgthms.com">Jeremy Thomas</a>. The source code is licensed
+      <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
+      is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+    </p>
+  </div>
+</footer>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
