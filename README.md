@@ -1,4 +1,7 @@
 # tema-cms
 Tema portal CMS
-para instalar clone esse repositorio ou baixe zipado 
-logo em seguida adicione no menu temas do plone
+
+Este portal utiliza framawork css bulma.io
+para instalar baixe o zip para seu computador abra o menu temas do plone e instale no diazo.
+
+ajuste nos rules e portal podem ser necessarios.
