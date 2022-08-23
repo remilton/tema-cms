@@ -14,29 +14,39 @@
 
 <style>
     .navbar-item.is-mega {
-    position: static;
+    position: static; 
+}
 
-    .is-mega-menu-title { margin-bottom: 0; padding: .375rem 1rem;  }
+.is-mega-menu-title { margin-bottom: 0; padding: .375rem 1rem;  }
+.footer{
+  background-color: #3a7aff;
+}
+.footer a{
+  color: white;
+}
+body{
+  color: white;
+}
+
+#logotexto{
+  color: white;
+  font-size: 1.4em;
+}
+#navactions{
+  background-color: black;
 }
 
 </style>
-<nav class="navbar is-info">
+
+<div class="container is-fluid" id="navactions">
+site actions
+</div>
+<nav class="navbar">
   <div class="navbar-brand">
     <a class="navbar-item" href="http://bulma.io">
       <img src="http://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28">
     </a>
-
-    <a class="navbar-item is-hidden-desktop" href="https://github.com/jgthms/bulma" target="_blank" aria-label="none">
-      <span class="icon" style="color: #333;">
-        <i class="fa fa-github"></i>
-      </span>
-    </a>
-
-    <a class="navbar-item is-hidden-desktop" href="https://twitter.com/jgthms" target="_blank" aria-label="none">
-      <span class="icon" style="color: #55acee;">
-        <i class="fa fa-twitter"></i>
-      </span>
-    </a>
+  
 
     <div class="navbar-burger burger" data-target="navMenubd-example">
       <span></span>
@@ -234,7 +244,7 @@
               <div class="level-right">
                 <div class="level-item">
                   <span class="icon has-text-info">
-                    <i class="fa fa-plug"></i>
+                    <em class="fa fa-plug"></em>
                   </span>
                 </div>
               </div>
@@ -242,27 +252,12 @@
           </a>
         </div>
       </div>
-      <a class="navbar-item " href="http://bulma.io/expo/">
-        <span class="bd-emoji">💻</span> &nbsp;SAPL
-      </a>
-      <a class="navbar-item " href="http://bulma.io/love/">
-        <span class="bd-emoji">📧</span> &nbsp;Email
-      </a>
+      
     </div>
 
     <div class="navbar-end">
-      <a class="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank" aria-label="none">
-        <span class="icon" style="color: #333;">
-          <i class="fa fa-github"></i>
-        </span>
-      </a>
-      <a class="navbar-item is-hidden-desktop-only" href="https://twitter.com/jgthms" target="_blank" aria-label="none">
-        <span class="icon" style="color: #55acee;">
-          <i class="fa fa-twitter"></i>
-        </span>
-      </a>
       
-      </div>
+      
     </div>
   </div>
 </nav>
@@ -276,6 +271,7 @@
       <div class="column is-12">
           
           <div id="remilton"></div>
+          
 
 
           
@@ -289,8 +285,8 @@
 <footer class="footer">
 
   <div class="columns is-desktop">
-  <div class="column has-text-centered"><img src="img/logo.jpg" width="120px" style="filter: grayscale(100%);">
-  <p>Câmara Municipal de Santana</p>
+  <div class="column has-text-centered"><img src="img/logo.png" width="120px" style="filter: grayscale(100%);" alt="none">
+  <p id="logotexto">Câmara Municipal de Santana</p>
   </div>
 
 </div>
@@ -301,11 +297,7 @@
     <div class="columns is-desktop">
   <div class="column">   <p>
      Este site é feito com o software livre e aberto <a href="http://www.interlegis.leg.br/portalmodelo">Portal Modelo</a> desenvolvido pelo <a href="http://www.interlegis.leg.br/">Interlegis</a> e roda sobre o CMS <a href="http://plone.org/">Plone. </a> 
-
-
-
-     
-    </p></div>
+  </p></div>
   <div class="column"> <p>Os conteúdos e dados deste site estão publicados sob a licença <a href="http://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR">Creative Commons 4.0 — Atribuir Fonte - Compartilhar Igual.</a></p></div>
  
 </div>
@@ -344,3 +336,4 @@
 
 </body>
 </html>
+
