@@ -1,0 +1,25 @@
+ .navbar-item.is-mega {
+    position: static; 
+}
+
+.is-mega-menu-title { margin-bottom: 0; padding: .375rem 1rem;  }
+.footer{
+  background-color: #3a7aff;
+}
+.footer a{
+  color: white;
+}
+body{
+  color: white;
+}
+
+#logotexto{
+  color: white;
+  font-size: 1.4em;
+}
+#navactions{
+  background-color: black;
+}
+.navbar-burger span{
+  height: 3px;
+}
