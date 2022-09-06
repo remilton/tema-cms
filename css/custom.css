@@ -25,3 +25,8 @@ body{
 .navbar-burger span{
   height: 3px;
 }
+ @media (max-width:1020px){
+        #sitemapa{
+          display: none;
+        }
+        }
