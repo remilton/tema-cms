@@ -1,0 +1,33 @@
+<!-- HTML -->
+<div id="parlamentar-card"></div>
+
+<script>
+  // JavaScript
+  const parlamentarCard = document.getElementById("parlamentar-card");
+  const parlamentarId = "5"; // substituir pelo id do parlamentar desejado
+  
+  fetch(`https://sapl.santana.ap.leg.br/api/parlamentares/parlamentar/${parlamentarId}`)
+    .then(response => response.json())
+    .then(data => {
+      parlamentarCard.innerHTML = `
+        <div>
+          <img src="${data.fotografia}" alt="${data.nome_completo}">
+          <h2>${data.nome_parlamentar}</h2>
+          <p><strong>Nome completo:</strong> ${data.nome_completo || "sem valor"}</p>
+          <p><strong>Sexo:</strong> ${data.sexo || "sem valor"}</p>
+          <p><strong>Data de nascimento:</strong> ${data.data_nascimento || "sem valor"}</p>
+          <p><strong>Telefone:</strong> ${data.telefone || "sem valor"}</p>
+          <p><strong>Celular:</strong> ${data.telefone_celular || "sem valor"}</p>
+          <p><strong>Endereço web:</strong> ${data.endereco_web || "sem valor"}</p>
+          <p><strong>Profissão:</strong> ${data.profissao || "sem valor"}</p>
+          <p><strong>E-mail:</strong> ${data.email || "sem valor"}</p>
+          <p><strong>Locais de atuação:</strong> ${data.locais_atuacao || "sem valor"}</p>
+          <p><strong>Ativo:</strong> ${data.ativo || "sem valor"}</p>
+          <p><strong>Biografia:</strong> ${data.biografia || "sem valor"}</p>
+        </div>
+      `;
+    })
+    .catch(error => {
+      parlamentarCard.innerHTML = `<p>Ocorreu um erro ao obter os dados do parlamentar.</p>`;
+    });
+</script>
