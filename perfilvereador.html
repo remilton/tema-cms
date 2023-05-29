@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{Nome do Vereador}</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="columns">
+  <div class="column is-narrow">
+    <div class="box" style="width: 300px;">
+    	<div id="parlamentar-card"></div>
+      <p>Redes Sociais</p>        
+    </div>
+  </div>
+
+  <div class="column">
+  	   <div class="box">
+  <p class="title is-5" id="parPerfil">útima preposição apresentada pelo Vereador </p>
+
+		<div class="notification is-primary">
+		 <!-- aqui vai entra o requerimento-->		 
+		</div>
+  
+    </div>
+    <div class="box">
+      <p class="title is-5" id="parPerfil2">Painel de preposições apresentadas pelo {Vereador_Nome} por Tipo</p>
+      <p class="subtitle">Escolha o ano para Visualizar no gráfico.</p>
+
+      <div class="field has-addons">
+  <div class="control is-expanded">
+    <div class="select is-fullwidth">
+      <select name="ano" id="yearSelect" onchange="updateChart()">        
+  			<option value="2021">2021</option>
+  			<option value="2022">2022</option>
+  			<option value="2023" selected>2023</option>
+      </select>
+    </div>
+  </div> 
+</div>
+
+      <canvas id="myChart"></canvas>
+
+      <small>*Escolha o tipo de preposição e clique em buscar, uma nova guia será aberta, verifique as configurações do seu dispositivo.</small>
+      <div class="field has-addons">
+  <div class="control is-expanded">
+    <div class="select is-fullwidth">
+      <select name="country">
+        <option value="Argentina">Requerimentos</option>
+        <option value="Bolivia">Indicações</option>
+        <option value="Brazil">Monção</option>
+        <option value="Chile">Parecer</option>
+        <option value="Colombia">Projeto de Lei Ordinária</option>
+        
+      </select>
+    </div>
+  </div>
+  <div class="control">
+    <button type="submit" class="button is-link">buscar</button>
+  </div>  
+</div>
+
+    </div>
+    <div class="box">
+      <p class="title is-5" id="parPerfil3">Painel de preposições apresentados pelo Vereador {nome} por Assunto</p>
+      <p class="subtitle">Câmara Municipal de Santana.</p>
+            <canvas id="myChart2"></canvas>
+  <small>*Escolha o assunto da preposição e clique em buscar, uma nova guia será aberta, verifique as configurações do seu dispositivo.</small>
+ <div class="field has-addons">
+  <div class="control is-expanded">
+    <div class="select is-fullwidth">
+      <select name="country">
+        <option value="Acessibilidade">Acessibilidade</option>
+        <option value="Agricultura Familiar">Agricultura Familiar</option>
+        <option value="Educação">Educação</option>
+        <option value="Inclusão Social">Inclusão Social</option>
+        <option value="Infraestrutura">Infraestrutura</option>
+        <option value="Mobilidade">Mobilidade</option>
+        <option value="Pandemia COVID-19">Pandemia COVID-19</option>
+        <option value="Saúde">Saúde</option>
+        <option value="Segurança">Segurança</option>
+        <option value="Transparência">Transparência</option>
+       
+      </select>
+    </div>
+  </div>
+  <div class="control">
+    <button type="submit" class="button is-link">buscar</button>
+  </div>
+</div>
+
+    </div>
+   
+    <div class="box">
+      <p class="title is-5" id="parPerfil4">Tabela de preposições apresentadas por Bairros pelo Vereador</p>
+      <p class="subtitle">Pesquisa por bairros. Clique no seu Bairro.</p>
+      <small>*uma nova guia será aberta, verifique as configurações do seu dispositivo. -></small>
+
+      <div class="table-container">
+	  <table class="table is-hoverable is-bordered is-striped" >
+	    <!-- Your table content -->
+	    <thead>
+    <tr>
+      <th>Bairros</th>
+      
+      <th>Requerimentos</th>
+      <th>Indicações</th>
+      <th>projeto de lei ordinária</th>
+      <th>Monção</th>    
+      <th>Parecer</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+
+  <tbody>    
+  </tbody>
+		  </table>
+	  </div>
+    </div>
+  </div>
+
+
+</div>
+<!--footer-->
+	<footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      Com dados do SAPL, para relatorios mais precisos ou não encontrado faça uma pesquisa diretamento no endereço: sapl.santana.ap.leg.br
+    </p>
+    
+  </div>
+</footer>
+<!--footer-->
+
+<!--cocluido parte card vereador-->
+<script type="text/javascript" async>
+  // JavaScript
+  const parlamentarCard = document.getElementById("parlamentar-card");
+  const parPerfil = document.getElementById("parPerfil");
+  const parPerfil2 = document.getElementById("parPerfil2");
+  const parPerfil3 = document.getElementById("parPerfil3");
+  const parPerfil4 = document.getElementById("parPerfil4");
+
+  const parlamentarId = "28"; // substituir pelo id do parlamentar desejado
+  
+  fetch(`https://sapl.santana.ap.leg.br/api/parlamentares/parlamentar/${parlamentarId}`)
+    .then(response => response.json())
+    .then(data => {
+      const nomeVer = data.nome_parlamentar;
+      parlamentarCard.innerHTML = `
+        <div>
+          <img src="${data.fotografia}" alt="${data.nome_completo}">
+          <p class="title is-5">${data.nome_parlamentar}</p>         
+          <p><strong>Data de nascimento:</strong> ${data.data_nascimento || "Não Informado"}</p>
+          <p><strong>Telefone:</strong> ${data.telefone || "Não Informado"}</p>                   
+          <p><strong>Profissão:</strong> ${data.profissao || "Não Informado"}</p>
+          <p><strong><a href="mailto: ${data.email}"> Envie um E-mail para o Vereador</a></p>          
+          <p><strong>Partido:</strong> ${data.partido || "Manualmente"}</p>          
+        </div>
+      `;
+      document.title = data.nome_parlamentar;
+      parPerfil.innerHTML = `               
+          <p>Útima preposição apresentada pelo Vereador ${nomeVer}</p>     
+         `
+      ;
+      parPerfil2.innerHTML = `               
+          <p>Painel de preposições apresentadas pelo Vereador ${nomeVer} por tipo</p>     
+         `
+      ;
+       parPerfil3.innerHTML = `               
+          <p>Painel de preposições apresentados pelo Vereador ${nomeVer} por assunto</p>     
+         `
+      ;
+       parPerfil4.innerHTML = `               
+          <p>Tabela de preposições apresentadas por Bairros pelo Vereador ${nomeVer}</p>     
+         `
+      ;
+
+    })
+    .catch(error => {
+      parlamentarCard.innerHTML = `<p>Ocorreu um erro ao obter os dados do parlamentar.</p>`;
+    }); 
+</script>
+
+<!--concuido esta parte-->
+<script type="text/javascript" async>
+  
+  // Faz uma requisição GET para o endpoint para mostrar a ultima materia do vereador ~> OK
+fetch('https://sapl.santana.ap.leg.br/api/materia/materialegislativa/?em_tramitacao=True&ano=2023&o=-id&autores=34')
+  .then(response => response.json())
+  .then(data => {
+    // Verifica se existem resultados
+    if (data.results.length > 0) {
+      const primeiroResultado = data.results[0]; // Obtém o primeiro resultado
+      
+      // Obtém os campos desejados do primeiro resultado
+      const str = primeiroResultado.__str__;
+      const ementa = primeiroResultado.ementa;
+      const textoOriginal = primeiroResultado.texto_original;
+      const dataApresentacao = primeiroResultado.data_apresentacao;
+      
+      // Seleciona a div existente com a classe "notification is-primary"
+      const divResultado = document.querySelector('.notification.is-primary');
+      
+      // Adiciona os campos como conteúdo dentro da div
+      divResultado.innerHTML = `
+        <p><strong>${str}</strong></p>
+        <p>${ementa}</p>
+        <a href="${textoOriginal}">texto original: ${str}</a>
+        <p><i>Data da Apresentação: ${dataApresentacao}</i></p>
+      `;
+    } else {
+      console.log('Nenhum resultado encontrado.');
+    }
+  })
+  .catch(error => console.error(error));
+
+
+</script>
+
+<!--concuido esta parte adicionar algo outro dia-->
+<script type="text/javascript" async>
+
+function fetchPage(page) {
+  const url = `https://sapl.santana.ap.leg.br/api/materia/materialegislativa/?ano=2023&autores=34&page=${page}`;
+
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Ocorreu um erro ao obter os dados. Código de status: " + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const results = data.results;
+      const typeCounts = {};
+      results.forEach(result => {
+        let tipo = result.tipo;
+        if (tipo === 3) {
+          tipo = "Indicação";
+        } else if (tipo === 6) {
+          tipo = "Requerimentos";
+        } else if (tipo === 7) {
+          tipo = "Monção";
+        }
+        if (tipo in typeCounts) {
+          typeCounts[tipo]++;
+        } else {
+          typeCounts[tipo] = 1;
+        }
+      });
+      return typeCounts;
+    })
+    .catch(error => {
+      console.log("Ocorreu um erro ao obter os dados da página", page, ":", error);
+    });
+}
+
+function updateChart() {
+  const year = document.getElementById('yearSelect').value;
+
+  if (year === "2023") {
+    fetch("https://sapl.santana.ap.leg.br/api/materia/materialegislativa/?ano=2023&autores=34")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Ocorreu um erro ao obter os dados. Código de status: " + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const totalPages = data.pagination.total_pages;
+        const fetchPromises = [];
+
+        // Loop para criar uma lista de Promises para cada página
+        for (let page = 1; page <= totalPages; page++) {
+          fetchPromises.push(fetchPage(page));
+        }
+
+        // Executar todas as Promises e aguardar suas resoluções
+        return Promise.all(fetchPromises);
+      })
+      .then(results => {
+        const typeCounts = {};
+
+        // Contagem dos tipos
+        results.forEach(typeCountsPage => {
+          for (const tipo in typeCountsPage) {
+            if (tipo in typeCounts) {
+              typeCounts[tipo] += typeCountsPage[tipo];
+            } else {
+              typeCounts[tipo] = typeCountsPage[tipo];
+            }
+          }
+        });
+
+        console.log("Contagem dos Tipos:");
+        for (const tipo in typeCounts) {
+          console.log(`Tipo: ${tipo}, Total: ${typeCounts[tipo]}`);
+        }
+
+        // Extrair os tipos e totais de ocorrências em arrays separados
+        const tipos = Object.keys(typeCounts);
+        const totais = Object.values(typeCounts);
+
+        // Atualizar o gráfico com os dados
+        const chart = Chart.getChart('myChart');
+        chart.data.labels = tipos;
+        chart.data.datasets[0].data = totais;
+        chart.data.datasets[0].label = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
+        chart.options.plugins.title.text = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
+        chart.update();
+      })
+      .catch(error => {
+        console.log("Ocorreu um erro ao obter os dados:", error);
+      });
+
+    return;
+  }
+
+  let data;
+  if (year === "2020") {
+    data = [10, 15, 20, 25, 5, 20]; // Exemplo de dados para 2020
+  } else if (year === "2021") {
+    data = [8, 12, 18, 30, 3, 15]; // Exemplo de dados para 2021
+  } else if (year === "2022") {
+    data = [15, 20, 25, 35, 8, 25]; // Exemplo de dados para 2022
+  }
+
+  const chart = Chart.getChart('myChart');
+  chart.data.datasets[0].data = data;
+  chart.data.datasets[0].label = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
+  chart.options.plugins.title.text = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
+  chart.update();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const chart = new Chart(document.getElementById('myChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Requerimento', 'Indicação', 'Monção', 'Projeto de Lei Ordinaria', 'Justificativa de Falta', 'Sessão', 'outros'],
+      datasets: [{
+        label: 'Quantidade de Preposições Feitas em 2023, Classificadas por Tipo',
+        data: [0, 0, 0, 0, 0, 0, 0],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  const yearSelect = document.getElementById('yearSelect');
+  yearSelect.addEventListener('change', updateChart);
+
+  updateChart();
+});
+
+</script>
+
+
+<!--TODO grafico por tema-->
+ <script type="text/javascript">
+    // Dados para o gráfico
+    var data = {
+      labels: ['Acessibilidade', 'Agricultura Familiar', 'Educação', 'Inclusão Social', 'Infraestrutura', 'Mobilidade', 'Pandemia COVID-19', 'Saúde', 'Segurança', 'Transparência'],
+      datasets: [{
+        data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Valores correspondentes aos elementos
+        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#9965ff', '#9566ff', '#9966aa', '#9944aa', '#006384'] // Cores para cada elemento
+      }]
+    };
+
+    // Opções do gráfico
+    var options = {
+      responsive: false
+
+    };
+
+    // Criação do gráfico
+    var ctx2 = document.getElementById('myChart2').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+      type: 'pie',
+      data: data,
+      options: options
+    });
+  </script>
+  
+
+</body>
+</html>
