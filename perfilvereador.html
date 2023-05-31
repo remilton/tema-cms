@@ -6,6 +6,16 @@
 	<title>{Nome do Vereador}</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+     .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      font-size: 18px;
+      color: #999;
+    }
+  </style>
 </head>
 <body>
 <div class="columns">
@@ -27,21 +37,24 @@
     </div>
     <div class="box">
       <p class="title is-5" id="parPerfil2">Painel de preposições apresentadas pelo {Vereador_Nome} por Tipo</p>
-      <p class="subtitle">Escolha o ano para Visualizar no gráfico.</p>
+      <p class="subtitle" for="ano">Escolha o ano para Visualizar no gráfico.</p>
 
-      <div class="field has-addons">
-  <div class="control is-expanded">
-    <div class="select is-fullwidth">
-      <select name="ano" id="yearSelect" onchange="updateChart()">        
-  			<option value="2021">2021</option>
-  			<option value="2022">2022</option>
-  			<option value="2023" selected>2023</option>
-      </select>
-    </div>
-  </div> 
-</div>
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <div class="select is-fullwidth">
+                   
 
-      <canvas id="myChart"></canvas>
+              <select id="ano" onchange="startFetching()">        
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023" selected>2023</option>
+              </select>
+              <div id="loading" class="loading" style="display: none;">Carregando...</div>
+            </div>
+          </div> 
+        </div>
+
+      <canvas id="chart"></canvas>
 
       <small>*Escolha o tipo de preposição e clique em buscar, uma nova guia será aberta, verifique as configurações do seu dispositivo.</small>
       <div class="field has-addons">
@@ -99,24 +112,29 @@
       <small>*uma nova guia será aberta, verifique as configurações do seu dispositivo. -></small>
 
       <div class="table-container">
-	  <table class="table is-hoverable is-bordered is-striped" >
-	    <!-- Your table content -->
-	    <thead>
-    <tr>
-      <th>Bairros</th>
-      
-      <th>Requerimentos</th>
-      <th>Indicações</th>
-      <th>projeto de lei ordinária</th>
-      <th>Monção</th>    
-      <th>Parecer</th>
-      <th>Total</th>
-    </tr>
-  </thead>
-
-  <tbody>    
-  </tbody>
-		  </table>
+        <div id="loading" class="loading" style="display: none;">Carregando...</div>
+        <table class="table is-hoverable is-bordered is-striped">
+    
+          <caption>Tabela de Dados de 2021 - 2023</caption>
+          <thead>
+            <tr>
+              <th>Bairro</th>
+              <th>Requerimentos</th>
+              <th>Indicação</th>
+              <th>Monção</th>
+              <th>Projeto de Lei Ordinária</th>
+              <th>Proposta de Emenda a Lei Orgânica</th>
+              <th>Projeto de Lei Complementar</th>
+              <th>Projeto de Decreto Legislativo</th>
+              
+    
+    
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+         
+        </table>
+       
 	  </div>
     </div>
   </div>
@@ -222,174 +240,268 @@ fetch('https://sapl.santana.ap.leg.br/api/materia/materialegislativa/?em_tramita
 
 <!--concuido esta parte adicionar algo outro dia-->
 <script type="text/javascript" async>
+    const baseUrl = 'https://sapl.santana.ap.leg.br/api/materia/materialegislativa/';
+    const parlamentarPrep = 34;
+    let chart;
 
-function fetchPage(page) {
-  const url = `https://sapl.santana.ap.leg.br/api/materia/materialegislativa/?ano=2023&autores=34&page=${page}`;
+    const fetchData = async (year, page) => {
+      try {
+        const response = await fetch(`${baseUrl}?ano=${year}&o=-id&autores=${parlamentarPrep}&page=${page}`);
+        const data = await response.json();
+        const tipos = data.results.map(result => {
+          switch (result.tipo) {
+            case 6:
+              return 'Requerimentos';
+            case 3:
+              return 'Indicação';
+            case 11:
+              return 'Proposta de Emenda à Lei Orgânica';
+            default:
+              return 'Outros';
+          }
+        });
 
-  return fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Ocorreu um erro ao obter os dados. Código de status: " + response.status);
+        return tipos;
+      } catch (error) {
+        console.error('Erro ao obter os resultados da página', page, error);
+        return [];
       }
-      return response.json();
-    })
-    .then(data => {
-      const results = data.results;
-      const typeCounts = {};
-      results.forEach(result => {
-        let tipo = result.tipo;
-        if (tipo === 3) {
-          tipo = "Indicação";
-        } else if (tipo === 6) {
-          tipo = "Requerimentos";
-        } else if (tipo === 7) {
-          tipo = "Monção";
-        }
-        if (tipo in typeCounts) {
-          typeCounts[tipo]++;
-        } else {
-          typeCounts[tipo] = 1;
-        }
-      });
-      return typeCounts;
-    })
-    .catch(error => {
-      console.log("Ocorreu um erro ao obter os dados da página", page, ":", error);
-    });
-}
+    };
 
-function updateChart() {
-  const year = document.getElementById('yearSelect').value;
+    const showLoading = () => {
+      document.getElementById('loading').style.display = 'flex';
+    };
 
-  if (year === "2023") {
-    fetch("https://sapl.santana.ap.leg.br/api/materia/materialegislativa/?ano=2023&autores=34")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Ocorreu um erro ao obter os dados. Código de status: " + response.status);
-        }
-        return response.json();
-      })
-      .then(data => {
+    const hideLoading = () => {
+      document.getElementById('loading').style.display = 'none';
+    };
+
+    const startFetching = async () => {
+      try {
+        showLoading();
+
+        const yearSelect = document.getElementById('ano');
+        const year = yearSelect.value;
+
+        const response = await fetch(`${baseUrl}?ano=${year}&o=-id&autores=${parlamentarPrep}`);
+        const data = await response.json();
         const totalPages = data.pagination.total_pages;
-        const fetchPromises = [];
+        console.log('Total de páginas:', totalPages);
 
-        // Loop para criar uma lista de Promises para cada página
+        const tiposCount = {};
+
         for (let page = 1; page <= totalPages; page++) {
-          fetchPromises.push(fetchPage(page));
+          const pageTipos = await fetchData(year, page);
+          pageTipos.forEach(tipo => {
+            tiposCount[tipo] = (tiposCount[tipo] || 0) + 1;
+          });
         }
 
-        // Executar todas as Promises e aguardar suas resoluções
-        return Promise.all(fetchPromises);
-      })
-      .then(results => {
-        const typeCounts = {};
+        // Ordenar os tipos em ordem decrescente com base na contagem
+        const sortedTipos = Object.keys(tiposCount).sort((a, b) => tiposCount[b] - tiposCount[a]);
 
-        // Contagem dos tipos
-        results.forEach(typeCountsPage => {
-          for (const tipo in typeCountsPage) {
-            if (tipo in typeCounts) {
-              typeCounts[tipo] += typeCountsPage[tipo];
-            } else {
-              typeCounts[tipo] = typeCountsPage[tipo];
+        console.log('Contagem dos tipos:', tiposCount);
+        console.log('Tipos ordenados:', sortedTipos);
+
+        // Formatar os dados para o gráfico
+        const labels = sortedTipos;
+        const dataValues = sortedTipos.map(tipo => tiposCount[tipo]);
+
+        // Definir as cores para o gráfico
+        const colors = ['#FF5733', '#FFC300', '#36A2EB', '#FF6384', '#4BC0C0'];
+
+        // Destruir o gráfico anterior, se existir
+        if (chart) {
+          chart.destroy();
+        }
+
+        // Configurar o gráfico de barras
+        var ctx = document.getElementById('chart').getContext('2d');
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: `Contagem (${year})`,
+              data: dataValues,
+              backgroundColor: colors.slice(0, labels.length), // Utiliza as cores apenas para os tipos existentes
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                precision: 0
+              }
             }
           }
         });
 
-        console.log("Contagem dos Tipos:");
-        for (const tipo in typeCounts) {
-          console.log(`Tipo: ${tipo}, Total: ${typeCounts[tipo]}`);
-        }
-
-        // Extrair os tipos e totais de ocorrências em arrays separados
-        const tipos = Object.keys(typeCounts);
-        const totais = Object.values(typeCounts);
-
-        // Atualizar o gráfico com os dados
-        const chart = Chart.getChart('myChart');
-        chart.data.labels = tipos;
-        chart.data.datasets[0].data = totais;
-        chart.data.datasets[0].label = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
-        chart.options.plugins.title.text = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
-        chart.update();
-      })
-      .catch(error => {
-        console.log("Ocorreu um erro ao obter os dados:", error);
-      });
-
-    return;
-  }
-
-  let data;
-  if (year === "2020") {
-    data = [10, 15, 20, 25, 5, 20]; // Exemplo de dados para 2020
-  } else if (year === "2021") {
-    data = [8, 12, 18, 30, 3, 15]; // Exemplo de dados para 2021
-  } else if (year === "2022") {
-    data = [15, 20, 25, 35, 8, 25]; // Exemplo de dados para 2022
-  }
-
-  const chart = Chart.getChart('myChart');
-  chart.data.datasets[0].data = data;
-  chart.data.datasets[0].label = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
-  chart.options.plugins.title.text = `Quantidade de Preposições Feitas em ${year}, Classificadas por Tipo`;
-  chart.update();
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  const chart = new Chart(document.getElementById('myChart'), {
-    type: 'bar',
-    data: {
-      labels: ['Requerimento', 'Indicação', 'Monção', 'Projeto de Lei Ordinaria', 'Justificativa de Falta', 'Sessão', 'outros'],
-      datasets: [{
-        label: 'Quantidade de Preposições Feitas em 2023, Classificadas por Tipo',
-        data: [0, 0, 0, 0, 0, 0, 0],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
+        hideLoading();
+      } catch (error) {
+        console.error('Erro ao obter o número total de páginas', error);
+        hideLoading();
       }
-    }
-  });
+    };
 
-  const yearSelect = document.getElementById('yearSelect');
-  yearSelect.addEventListener('change', updateChart);
+    startFetching();
+</script>
 
-  updateChart();
+
+
+  
+<!--tabela bairros-->
+<script async>
+const url = 'https://sapl.santana.ap.leg.br/api/materia/materialegislativa/';
+const autores = 34;
+
+const bairros = [
+  { nome: 'Paraíso', link: '#' },
+  { nome: 'Bairro dos Remédios', link: '#' },
+  { nome: 'Fonte Nova', link: '#' },
+  { nome: 'Central', link: '#' },
+  { nome: 'Comercial', link: '#' },
+  { nome: 'Hospitalidade', link: '#' },
+  { nome: 'Nova Brasília', link: '#' },
+  { nome: 'Provedor', link: '#' },
+  { nome: 'Elesbão', link: '#' },
+  { nome: 'Fortaleza', link: '#' },
+  { nome: 'Novo Horizonte', link: '#' },
+  { nome: 'Vila Amazonas', link: '#' },
+  { nome: 'Daniel', link: '#' }
+];
+
+const requests = bairros.map(bairro => {
+  const queryParams = {
+    o: '-id',
+    ementa__icontains: bairro.nome,
+    autores: autores
+  };
+
+  const requestUrl = `${url}?${new URLSearchParams(queryParams).toString()}`;
+
+  let allData = [];
+
+  return obterDados(requestUrl, allData)
+    .then(data => {
+      const tipoCounts = data.reduce((counts, item) => {
+        const descricaoTipo = getDescricaoTipo(item.tipo);
+        counts[descricaoTipo] = (counts[descricaoTipo] || 0) + 1;
+        return counts;
+      }, {});
+
+      return { bairro, tipoCounts };
+    });
 });
 
+Promise.all(requests)
+  .then(data => {
+    const tableBody = document.getElementById('dataBody');
+
+    data.forEach(({ bairro, tipoCounts }) => {
+      const row = createTableRow(bairro, tipoCounts);
+      tableBody.appendChild(row);
+    });
+  })
+  .catch(error => {
+    console.error('Ocorreu um erro:', error);
+  });
+
+function obterDados(url, allData) {
+  return fetch(url)
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Erro na solicitação');
+    })
+    .then(data => {
+      allData = allData.concat(data.results);
+
+      if (allData.length < data.pagination.total_entries) {
+        const nextPage = data.pagination.page + 1;
+        const nextUrl = `${url}&page=${nextPage}`;
+        return obterDados(nextUrl, allData);
+      }
+
+      return allData;
+    });
+}
+
+function getDescricaoTipo(tipo) {
+  let descricaoTipo = '';
+
+  if (tipo === 6) {
+    descricaoTipo = 'Requerimento';
+  } else if (tipo === 3) {
+    descricaoTipo = 'Indicação';
+  } else if (tipo === 7) {
+    descricaoTipo = 'Monção';
+  } else if (tipo === 5) {
+    descricaoTipo = 'Projeto de Lei Ordinária';
+  } else if (tipo === 11) {
+    descricaoTipo = 'Proposta de Emenda a Lei Orgânica';
+  } else if (tipo === 8) {
+    descricaoTipo = 'Projeto de Lei Complementar';
+  } else if (tipo === 9) {
+    descricaoTipo = 'Projeto de Decreto Legislativo';
+  }
+
+  return descricaoTipo;
+}
+
+function createTableRow(bairro, tipoCounts) {
+  const row = document.createElement('tr');
+  const bairroCell = document.createElement('td');
+  const bairroLink = document.createElement('a');
+  bairroLink.href = bairro.link;
+  bairroLink.target = '_blank'; // Abrir em nova aba
+  bairroLink.textContent = bairro.nome;
+  bairroCell.appendChild(bairroLink);
+  row.appendChild(bairroCell);
+
+  const tipos = ['Requerimento', 'Indicação', 'Monção', 'Projeto de Lei Ordinária', 'Proposta de Emenda a Lei Orgânica', 'Projeto de Lei Complementar', 'Projeto de Decreto Legislativo'];
+
+  tipos.forEach(tipo => {
+    const count = tipoCounts[tipo] || 0;
+    const countCell = document.createElement('td');
+    countCell.textContent = count;
+    row.appendChild(countCell);
+  });
+
+  return row;
+}
 </script>
 
 
 <!--TODO grafico por tema-->
- <script type="text/javascript">
-    // Dados para o gráfico
-    var data = {
-      labels: ['Acessibilidade', 'Agricultura Familiar', 'Educação', 'Inclusão Social', 'Infraestrutura', 'Mobilidade', 'Pandemia COVID-19', 'Saúde', 'Segurança', 'Transparência'],
-      datasets: [{
-        data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Valores correspondentes aos elementos
-        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#9965ff', '#9566ff', '#9966aa', '#9944aa', '#006384'] // Cores para cada elemento
-      }]
-    };
+<script type="text/javascript">
+  // Dados para o gráfico
+  var data = {
+    labels: ['Acessibilidade', 'Agricultura Familiar', 'Educação', 'Inclusão Social', 'Infraestrutura', 'Mobilidade', 'Pandemia COVID-19', 'Saúde', 'Segurança', 'Transparência'],
+    datasets: [{
+      data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Valores correspondentes aos elementos
+      backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#9965ff', '#9566ff', '#9966aa', '#9944aa', '#006384'] // Cores para cada elemento
+    }]
+  };
 
-    // Opções do gráfico
-    var options = {
-      responsive: false
+  // Opções do gráfico
+  var options = {
+    responsive: false
 
-    };
+  };
 
-    // Criação do gráfico
-    var ctx2 = document.getElementById('myChart2').getContext('2d');
-    var myChart2 = new Chart(ctx2, {
-      type: 'pie',
-      data: data,
-      options: options
-    });
-  </script>
-  
+  // Criação do gráfico
+  var ctx2 = document.getElementById('myChart2').getContext('2d');
+  var myChart2 = new Chart(ctx2, {
+    type: 'pie',
+    data: data,
+    options: options
+  });
+</script>
+
+
 
 </body>
 </html>
